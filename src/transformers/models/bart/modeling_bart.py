@@ -210,6 +210,9 @@ class BartAttention(nn.Module):
         src_len = key_states.size(1)
         attn_weights = torch.bmm(query_states, key_states.transpose(1, 2))
 
+        # prenorm attns
+        attn_weights_prenorm = attn_weights.view(bsz, self.num_heads, tgt_len, src_len)
+
         assert attn_weights.size() == (
             bsz * self.num_heads,
             tgt_len,
@@ -263,7 +266,9 @@ class BartAttention(nn.Module):
 
         attn_output = self.out_proj(attn_output)
 
-        return attn_output, attn_weights_reshaped, past_key_value
+        return attn_output, attn_weights_prenorm, past_key_value
+        
+        #return attn_output, attn_weights_reshaped, past_key_value
 
 
 class BartEncoderLayer(nn.Module):
